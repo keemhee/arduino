@@ -1,104 +1,80 @@
-int encoder_pin = 2;
-int counter = 0;
-int A_IA = 5;
-int A_IB = 6;
-int B_IA = 11;
-int B_IB = 10;
-int IR = 3;
-int IR2 = 9;
-int LED = 13;
+int encoder_pin = 2; // 엔코더 핀 정의
+int counter = 0; // 엔코더 카운터 변수 초기화
+int A_IA = 5; // 모터 A의 IA 핀 정의
+int A_IB = 6; // 모터 A의 IB 핀 정의
+int B_IA = 11; // 모터 B의 IA 핀 정의
+int B_IB = 10; // 모터 B의 IB 핀 정의
+int IR = 3; // 적외선 센서 핀 정의
+int IR2 = 9; // 두 번째 적외선 센서 핀 정의
+int LED = 13; // LED 핀 정의
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(encoder_pin, INPUT);
-  pinMode(A_IA, OUTPUT);
-  pinMode(A_IB, OUTPUT);
-  pinMode(B_IA, OUTPUT);
-  pinMode(B_IB, OUTPUT);
-  pinMode(IR, INPUT);
-  pinMode(IR2, INPUT);
-  pinMode(LED, OUTPUT);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin), count_encoder, RISING);
+  Serial.begin(9600); // 시리얼 통신을 9600 baud로 시작
+  pinMode(encoder_pin, INPUT); // 엔코더 핀을 입력 모드로 설정
+  pinMode(A_IA, OUTPUT); // 모터 A의 IA 핀을 출력 모드로 설정
+  pinMode(A_IB, OUTPUT); // 모터 A의 IB 핀을 출력 모드로 설정
+  pinMode(B_IA, OUTPUT); // 모터 B의 IA 핀을 출력 모드로 설정
+  pinMode(B_IB, OUTPUT); // 모터 B의 IB 핀을 출력 모드로 설정
+  pinMode(IR, INPUT); // 적외선 센서 핀을 입력 모드로 설정
+  pinMode(IR2, INPUT); // 두 번째 적외선 센서 핀을 입력 모드로 설정
+  pinMode(LED, OUTPUT); // LED 핀을 출력 모드로 설정
+  attachInterrupt(digitalPinToInterrupt(encoder_pin), count_encoder, RISING); // 엔코더 인터럽트 설정
 }
 
 void loop() {
-  int IRsensor = digitalRead(IR);
-  int IR2sensor = digitalRead(IR2);
-  Serial.println(IRsensor);
-  Serial.println(IR2sensor);
-  forward();
-  Serial.print("Counter: ");
-  Serial.println(counter);
-  delay(4000);
-  turnright();
-  delay(1000);
-  forward();
-  delay(4000);
-  turnright();
-  delay(1000);
-  forward();
-  delay(4000);
-  turnright();
-  delay(1000);
-  forward();
-  delay(4000);
-  turnright();
-  delay(1000);
-  stop();
-  delay(100000000);
-}
+  int IRsensor = digitalRead(IR); // 적외선 센서 값 읽기
+  int IR2sensor = digitalRead(IR2); // 두 번째 적외선 센서 값 읽기
+  Serial.println(IRsensor); // 적외선 센서 값 출력
+  Serial.println(IR2sensor); // 두 번째 적외선 센서 값 출력
 
-void count_encoder()
-{
-  counter++;
-}
-
-void turning()
-{
-  if (IR == LOW && IR2 == HIGH) 
-  {
-    Serial.println("turn right");
+  if (IRsensor == LOW && IR2sensor == HIGH) {
+    turnright(); // 우회전 함수 호출
+  } else if (IRsensor == HIGH && IR2sensor == LOW) {
+    turnleft(); // 좌회전 함수 호출
+  } else {
+    forward(); // 전진 함수 호출
   }
-  else if (IR == HIGH && IR2 == LOW) 
-  {
-    Serial.println("turn left");
-  }
-  delay(500);
+
+  Serial.print("Counter: "); // "Counter: " 출력
+  Serial.println(counter); // 카운터 값 출력
+  delay(100); // 100ms 대기
 }
 
-void forward(){
-  analogWrite(A_IA, 100);
-  analogWrite(A_IB, 0);
-  analogWrite(B_IA, 100);
-  analogWrite(B_IB, 0);
+void count_encoder() {
+  counter++; // 카운터 증가
 }
 
-void backward(){
-  analogWrite(A_IA, 0);
-  analogWrite(A_IB, 100);
-  analogWrite(B_IA, 0);
-  analogWrite(B_IB, 100);
+void forward() {
+  analogWrite(A_IA, 100); // 모터 A 전진
+  analogWrite(A_IB, 0); // 모터 A 전진
+  analogWrite(B_IA, 100); // 모터 B 전진
+  analogWrite(B_IB, 0); // 모터 B 전진
 }
 
-
-void turnleft(){
-  analogWrite(A_IA, 100);
-  analogWrite(A_IB, 0);
-  analogWrite(B_IA, 0);
-  analogWrite(B_IB, 100);
+void backward() {
+  analogWrite(A_IA, 0); // 모터 A 후진
+  analogWrite(A_IB, 100); // 모터 A 후진
+  analogWrite(B_IA, 0); // 모터 B 후진
+  analogWrite(B_IB, 100); // 모터 B 후진
 }
 
-void turnright(){
-  analogWrite(A_IA, 0);
-  analogWrite(A_IB, 100);
-  analogWrite(B_IA, 100);
-  analogWrite(B_IB, 0);
+void turnleft() {
+  analogWrite(A_IA, 100); // 모터 A 좌회전
+  analogWrite(A_IB, 0); // 모터 A 좌회전
+  analogWrite(B_IA, 0); // 모터 B 좌회전
+  analogWrite(B_IB, 100); // 모터 B 좌회전
 }
-void stop()
-{
-  analogWrite(A_IA, 0);
-  analogWrite(A_IB, 0);
-  analogWrite(B_IA, 0);
-  analogWrite(B_IB, 0);
+
+void turnright() {
+  analogWrite(A_IA, 0); // 모터 A 우회전
+  analogWrite(A_IB, 100); // 모터 A 우회전
+  analogWrite(B_IA, 100); // 모터 B 우회전
+  analogWrite(B_IB, 0); // 모터 B 우회전
 }
-  
+
+void stop() {
+  analogWrite(A_IA, 0); // 모터 A 정지
+  analogWrite(A_IB, 0); // 모터 A 정지
+  analogWrite(B_IA, 0); // 모터 B 정지
+  analogWrite(B_IB, 0); // 모터 B 정지
+}
