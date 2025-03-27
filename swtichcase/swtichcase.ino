@@ -10,26 +10,26 @@
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
-int distance = 0;
-int red = 3;
-int green = 5;
-int blue = 6;
+int distance = 0; // 변수 distance를 0으로 초기화
+int red = 3;     // 빨간색 LED 핀 번호
+int green = 5;   // 초록색 LED 핀 번호
+int blue = 6;    // 파란색 LED 핀 번호
 
 void setup() {
-  Serial.begin(9600); // Open serial monitor at 115200 baud to see ping results.
-  pinMode(red, OUTPUT);
-  pinMode(green, OUTPUT);
-  pinMode(blue, OUTPUT);
+  Serial.begin(9600); // 시리얼 모니터를 9600 baud로 열어 핑 결과를 확인
+  pinMode(red, OUTPUT);   // 빨간색 LED 핀을 출력 모드로 설정
+  pinMode(green, OUTPUT); // 초록색 LED 핀을 출력 모드로 설정
+  pinMode(blue, OUTPUT);  // 파란색 LED 핀을 출력 모드로 설정
 }
 
 void loop() {
-  delay(50);                     // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+  delay(50);                     // 핑 사이의 간격을 50ms로 설정 (약 20회/초 핑). 29ms는 핑 사이의 최소 간격
   Serial.print("Ping: ");
-  distance = sonar.ping_cm(); // Send ping, get distance in cm and print result (0 = outside set distance range)
+  distance = sonar.ping_cm(); // 핑을 보내고, 반환된 거리 (cm)를 저장 (0 = 설정된 거리 범위 외)
   Serial.print(distance);
   Serial.println("cm");
   
-  int state= map(distance, 0, MAX_DISTANCE, 1, 3);
+  int state= map(distance, 0, MAX_DISTANCE, 1, 3); // 거리를 1에서 3 사이의 값으로 매핑
 //  if (distance > 200)
 //  {
 //    state = 3;
@@ -43,30 +43,30 @@ void loop() {
 //    state = 2;
 //  }
 
-  switch (state)
+  switch (state) // 매핑된 state 값에 따라 LED 색상을 변경
   {
-    case 1 : //if (state == 1)
+    case 1 : // state가 1인 경우
       Serial.println("war");
-      analogWrite(red, 255);
-      analogWrite(green, 0);
-      analogWrite(blue, 0);
+      analogWrite(red, 255);   // 빨간색 LED 최대 밝기
+      analogWrite(green, 0);   // 초록색 LED 끄기
+      analogWrite(blue, 0);    // 파란색 LED 끄기
       break;
-    case 2 : 
+    case 2 : // state가 2인 경우
       Serial.println("be prepare");
-      analogWrite(red, 255);
-      analogWrite(green, 255);
-      analogWrite(blue, 0);
+      analogWrite(red, 255);   // 빨간색 LED 최대 밝기
+      analogWrite(green, 255); // 초록색 LED 최대 밝기
+      analogWrite(blue, 0);    // 파란색 LED 끄기
       break;
-    case 3 :
+    case 3 : // state가 3인 경우
       Serial.println("relax");
-      analogWrite(red, 255);
-      analogWrite(green, 255);
-      analogWrite(blue, 255);
+      analogWrite(red, 255);   // 빨간색 LED 최대 밝기
+      analogWrite(green, 255); // 초록색 LED 최대 밝기
+      analogWrite(blue, 255);  // 파란색 LED 최대 밝기
       break;
-    default :
-      analogWrite(red,0);
-      analogWrite(green, 0);
-      analogWrite(blue, 0);
+    default : // 기본 상태 (어떤 case에도 해당하지 않는 경우)
+      analogWrite(red,0);      // 빨간색 LED 끄기
+      analogWrite(green, 0);   // 초록색 LED 끄기
+      analogWrite(blue, 0);    // 파란색 LED 끄기
       break;
   }
 }
