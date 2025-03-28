@@ -1,30 +1,29 @@
+#include <WiFi.h> // Wi-Fi 라이브러리 포함
+#include <WebServer.h> // 웹 서버 라이브러리 포함
+#include <Servo.h> // 서보 모터 라이브러리 포함
 
-#include <WiFi.h>
-#include <WebServer.h>
-#include <Servo.h>
+#define M1_B    26 // 모터 B 핀 정의
+#define M1_A    27 // 모터 A 핀 정의
 
-#define M1_B    26
-#define M1_A    27
+#define FORWARD   1 // 앞으로 이동 상태 정의
+#define BACKWARD  2 // 뒤로 이동 상태 정의
+#define STOP      3 // 정지 상태 정의
 
-#define FORWARD   1
-#define BACKWARD  2
-#define STOP      3
+#define LED 2 // LED 핀 정의
 
-#define LED 2
+Servo myservo; // 서보 모터 객체 생성
+#define myservo 18 // 서보 모터 핀 정의 (중복 정의, 수정 필요)
 
-Servo myservo;
-#define myservo 18
+const char* ssid = "esp32-k"; // Wi-Fi SSID 정의
+const char* password = "123456789"; // Wi-Fi 비밀번호 정의
 
-const char* ssid = "esp32-khj";  
-const char* password = "123456789";  
+IPAddress local_ip(192,168,1,1); // 고정 IP 주소 정의
+IPAddress gateway(192,168,1,1); // 게이트웨이 IP 주소 정의
+IPAddress subnet (255,255,255,0); // 서브넷 마스크 정의
 
-IPAddress local_ip(192,168,1,1);  
-IPAddress gateway(192,168,1,1);
-IPAddress subnet(255,255,255,0);
+int motor_status = STOP; // 모터 초기 상태를 정지로 설정
 
-int motor_status = STOP;
-
-WebServer server(80);
+WebServer server(80); // 웹 서버 객체 생성 (포트 80)
 
 /*void go_forward(){
   Serial.println("forward");
@@ -46,31 +45,32 @@ void stop(){
 }*/
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // 시리얼 통신을 115200 보드레이트로 시작
 
-  pinMode(M1_A, OUTPUT);
-  pinMode(M1_B, OUTPUT);
-  pinMode(LED, OUTPUT); 
+  pinMode(M1_A, OUTPUT); // 모터 A 핀을 출력 모드로 설정
+  pinMode(M1_B, OUTPUT); // 모터 B 핀을 출력 모드로 설정
+  pinMode(LED, OUTPUT); // LED 핀을 출력 모드로 설정
 
-  pinMode(myservo, INPUT);
+  pinMode(myservo, INPUT); // 서보 모터 핀을 입력 모드로 설정 (잘못된 설정, 수정 필요)
 
-  stop();
+  stop(); // 모터 정지 함수 호출
 
-  WiFi.softAP(ssid, password);
-  WiFi.softAPConfig(local_ip, gateway, subnet);
-  delay(100);
+  WiFi.softAP(ssid, password); // ESP32를 액세스 포인트 모드로 설정하여 Wi-Fi 네트워크 시작
+  WiFi.softAPConfig(local_ip, gateway, subnet); // 고정 IP 주소 설정
+  delay(100); // 100 밀리초 대기
+
+  server.on("/", handle_OnConnect); // 루트 URL 요청 처리 함수 등록
+  server.on("/forward", handle_forward); // "/forward" URL 요청 처리 함수 등록
+  server.on("/backward", handle_backward); // "/backward" URL 요청 처리 함수 등록
+  server.on("/stop", handle_stop); // "/stop" URL 요청 처리 함수 등록
+  server.onNotFound(handle_NotFound); // 존재하지 않는 URL 요청 처리 함수 등록
   
-  server.on("/", handle_OnConnect);
-  server.on("/forward", handle_forward);
-  server.on("/backward", handle_backward);
-  server.on("/stop", handle_stop);
-  server.onNotFound(handle_NotFound);
-  
-  server.begin();
-  Serial.println("HTTP server started");
+  server.begin(); // 웹 서버 시작
+  Serial.println("HTTP server started"); // 서버 시작 메시지 출력
 }
+
 void loop() {
-  server.handleClient();
+  server.handleClient(); // 클라이언트 요청 처리
 }
 
 /*void handle_OnConnect() {
@@ -138,7 +138,7 @@ String SendHTML(uint8_t motor_status){
     case 3:
       {ptr +="<p>Servo motor</p><a class=\"button button-off\" href=\"/forward\">OFF</a>\n";}
       /*{ptr +="<p>Motor backward</p><a class=\"button button-off\" href=\"/backward\">OFF</a>\n";}
-      {ptr +="<p>stop</p><a class=\"button button-on\" href=\"/stop\">ON</a>\n";}
+      {ptr +="<p>stop</p><a class=\"button button-on\" href=\"/stop\">ON\</a>\n";}
       */break;
   }
   ptr +="</body>\n";
