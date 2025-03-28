@@ -12,7 +12,6 @@
 #define LED 2 // LED 핀 정의
 
 Servo myservo; // 서보 모터 객체 생성
-#define myservo 18 // 서보 모터 핀 정의 (중복 정의, 수정 필요)
 
 const char* ssid = "esp32-k"; // Wi-Fi SSID 정의
 const char* password = "123456789"; // Wi-Fi 비밀번호 정의
@@ -51,7 +50,7 @@ void setup() {
   pinMode(M1_B, OUTPUT); // 모터 B 핀을 출력 모드로 설정
   pinMode(LED, OUTPUT); // LED 핀을 출력 모드로 설정
 
-  pinMode(myservo, INPUT); // 서보 모터 핀을 입력 모드로 설정 (잘못된 설정, 수정 필요)
+  myservo.attach(18); // 서보 모터 핀을 18번 핀에 연결 (수정된 부분)
 
   stop(); // 모터 정지 함수 호출
 
@@ -107,41 +106,41 @@ void handle_NotFound(){
 }*/
 
 String SendHTML(uint8_t motor_status){
-  String ptr = "<!DOCTYPE html> <html>\n";
-  ptr +="<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-  ptr +="<title>LED Control</title>\n";
-  ptr +="<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-  ptr +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
-  ptr +=".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
-  ptr +=".button-on {background-color: #3498db;}\n";
-  ptr +=".button-on:active {background-color: #2980b9;}\n";
-  ptr +=".button-off {background-color: #34495e;}\n";
-  ptr +=".button-off:active {background-color: #2c3e50;}\n";
-  ptr +="p {font-size: 14px;color: #888;margin-bottom: 10px;}\n";
-  ptr +="</style>\n";
-  ptr +="</head>\n";
-  ptr +="<body>\n";
-  ptr +="<h1>ESP32 Web Server</h1>\n";
-  ptr +="<h3>Using Access Point(AP) Mode</h3>\n";
+  String ptr = "<!DOCTYPE html> <html>\n"; // HTML 시작 태그
+  ptr +="<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n"; // 메타 태그와 뷰포트 설정
+  ptr +="<title>LED Control</title>\n"; // HTML 문서의 제목 설정
+  ptr +="<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n"; // 스타일 태그 시작
+  ptr +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n"; // 기본 스타일 설정
+  ptr +=".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n"; // 버튼 스타일 설정
+  ptr +=".button-on {background-color: #3498db;}\n"; // 버튼 활성화 상태 스타일
+  ptr +=".button-on:active {background-color: #2980b9;}\n"; // 버튼 활성화 상태에서 클릭 시 스타일
+  ptr +=".button-off {background-color: #34495e;}\n"; // 버튼 비활성화 상태 스타일
+  ptr +=".button-off:active {background-color: #2c3e50;}\n"; // 버튼 비활성화 상태에서 클릭 시 스타일
+  ptr +="p {font-size: 14px;color: #888;margin-bottom: 10px;}\n"; // 단락 스타일 설정
+  ptr +="</style>\n"; // 스타일 태그 종료
+  ptr +="</head>\n"; // 헤드 태그 종료
+  ptr +="<body>\n"; // 바디 태그 시작
+  ptr +="<h1>ESP32 Web Server</h1>\n"; // 제목 출력
+  ptr +="<h3>Using Access Point(AP) Mode</h3>\n"; // 부제목 출력
 
   switch(motor_status){
     case 1:
-      {ptr +="<p>Servo motor</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n";}
+      {ptr +="<p>Servo motor</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n";} // 서보 모터가 앞으로 이동 중일 때 버튼 생성
       /*{ptr +="<p>Motor backward</p><a class=\"button button-off\" href=\"/backward\">OFF</a>\n";}
-      {ptr +="<p>stop</p><a class=\"button button-off\" href=\"/stop\">OFF</a>\n";}
+      {ptr +="<p>stop</p><a class=\"button button-off\" href=\"/stop\">OFF\n";}
       */break;
     case 2:
-      {ptr +="<p>Servo motor</p><a class=\"button button-off\" href=\"/forward\">OFF</a>\n";}
-      /*{ptr +="<p>Motor backward</p><a class=\"button button-on\" href=\"/backward\">ON</a>\n";}
-      {ptr +="<p>stop</p><a class=\"button button-off\" href=\"/stop\">OFF</a>\n";}
+      {ptr +="<p>Servo motor</p><a class=\"button button-off\" href=\"/forward\">OFF</a>\n";} // 서보 모터가 뒤로 이동 중일 때 버튼 생성
+      /*{ptr +="<p>Motor backward</p><a class=\"button button-on\" href=\"/backward\">ON\</a>\n";}
+      {ptr +="<p>stop</p><a class=\"button button-off\" href=\"/stop\">OFF\n";}
       */break;
     case 3:
-      {ptr +="<p>Servo motor</p><a class=\"button button-off\" href=\"/forward\">OFF</a>\n";}
-      /*{ptr +="<p>Motor backward</p><a class=\"button button-off\" href=\"/backward\">OFF</a>\n";}
-      {ptr +="<p>stop</p><a class=\"button button-on\" href=\"/stop\">ON\</a>\n";}
+      {ptr +="<p>Servo motor</p><a class=\"button button-off\" href=\"/forward\">OFF\</a>\n";} // 서보 모터가 정지 상태일 때 버튼 생성
+      /*{ptr +="<p>Motor backward</p><a class=\"button button-off\" href=\"/backward\">OFF\</a>\n";}
+      {ptr +="<p>stop</p><a class=\"button button-on\" href=\"/stop\">ON</a>\n";}
       */break;
   }
-  ptr +="</body>\n";
-  ptr +="</html>\n";
-  return ptr;
+  ptr +="</body>\n"; // 바디 태그 종료
+  ptr +="</html>\n"; // HTML 종료 태그
+  return ptr; // 생성된 HTML 문자열 반환
 }
